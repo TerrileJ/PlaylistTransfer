@@ -6,8 +6,10 @@ import java.io.IOException;
  */
 public class Main {
     public static void main(String[] args) throws IOException {
-        Transfer_Methods test=new Transfer_Methods();
-        test.get_playlist(System.getProperty("playlist_id"));
+        Transfer_Methods test = new Transfer_Methods();
+        String trackNames = test.get_playlist(System.getProperty("playlist_id"));
+
+        System.out.println(trackNames);
 
     }
 }

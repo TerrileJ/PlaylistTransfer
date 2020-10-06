@@ -1,14 +1,39 @@
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
+import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+import com.google.api.services.youtube.YouTube;
+
+
+import java.security.GeneralSecurityException;
+import java.util.Arrays;
+import java.util.Collection;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
 
 /**
  * Take a Spotify playlist and transfer it over into a Youtube
  * playlist, possibly on a loop.
  */
 public class Transfer_Methods {
+    private static final String CLIENT_SECRETS= "client_secret.json";
+    private static final Collection<String> SCOPES =
+            Arrays.asList("https://www.googleapis.com/auth/youtube.force-ssl");
+
+    private static final String APPLICATION_NAME = "API code samples";
+    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+
     public Transfer_Methods(){}
 
     /**
@@ -41,7 +66,7 @@ public class Transfer_Methods {
 
         int status = con.getResponseCode();
         String statusM = con.getResponseMessage();
-        System.out.print(status);
+        System.out.println(status);
         System.out.println(statusM);
 
         // read in input
@@ -56,12 +81,33 @@ public class Transfer_Methods {
         // close the connection
         con.disconnect();
         return content.toString();
+
     }
 
     /**
-     * Log into Youtube.
+     * Log into Youtube and give permissions.
+     *
+     * Derived from Youtube Java Quickstart Docs.
+     * @return Youtube - Youtube user auth api client.
      */
-    public void get_Youtube_client() {
+    public YouTube get_Youtube_client() throws GeneralSecurityException, IOException {
+
+        final NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+
+        // Load client secrets.
+        InputStream in = Transfer_Methods.class.getResourceAsStream(CLIENT_SECRETS);
+        GoogleClientSecrets clientSecrets =
+                GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
+        // Build flow and trigger user authorization request.
+        GoogleAuthorizationCodeFlow flow =
+                new GoogleAuthorizationCodeFlow.Builder(httpTransport, JSON_FACTORY, clientSecrets, SCOPES)
+                        .build();
+        Credential credential =
+                new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
+
+        return new YouTube.Builder(httpTransport, JSON_FACTORY, credential)
+                .setApplicationName(APPLICATION_NAME)
+                .build();
 
     }
 
