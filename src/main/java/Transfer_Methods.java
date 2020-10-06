@@ -9,6 +9,9 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 
 import com.google.api.services.youtube.YouTube;
+import com.google.api.services.youtube.model.Playlist;
+import com.google.api.services.youtube.model.PlaylistSnippet;
+import com.google.api.services.youtube.model.PlaylistStatus;
 
 
 import java.security.GeneralSecurityException;
@@ -113,8 +116,39 @@ public class Transfer_Methods {
 
     /**
      * Create a youtube playlist.
+     *
+     * Taken from Youtube Data Api.
+     * @return void.
      */
-    public void create_playlist() {
+    public void create_playlist() throws GeneralSecurityException, IOException {
+        YouTube youtubeService = get_Youtube_client();
+
+
+        // Define the Playlist object, which will be uploaded as the request body.
+        Playlist playlist = new Playlist();
+
+        // Add the snippet object property to the Playlist object.
+        PlaylistSnippet snippet = new PlaylistSnippet();
+        snippet.setDefaultLanguage("en");
+        snippet.setDescription("Playlist taken from user's spotify");
+        String[] tags = {
+                "sample playlist",
+                "API call",
+        };
+        snippet.setTags(Arrays.asList(tags));
+        snippet.setTitle("Spotify Playlist");
+        playlist.setSnippet(snippet);
+
+        // Add the status object property to the Playlist object.
+        PlaylistStatus status = new PlaylistStatus();
+        status.setPrivacyStatus("private");
+        playlist.setStatus(status);
+
+        // Define and execute the API request
+        YouTube.Playlists.Insert request = youtubeService.playlists()
+                .insert("snippet,status", playlist);
+        Playlist response = request.execute();
+        System.out.println(response);
 
     }
 
