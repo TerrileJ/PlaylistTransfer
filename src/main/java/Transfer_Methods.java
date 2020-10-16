@@ -13,8 +13,8 @@ import com.google.api.services.youtube.model.Playlist;
 import com.google.api.services.youtube.model.PlaylistSnippet;
 import com.google.api.services.youtube.model.PlaylistStatus;
 
-
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.io.BufferedReader;
@@ -23,6 +23,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONString;
 
 
 /**
@@ -34,24 +39,18 @@ public class Transfer_Methods {
     private static final Collection<String> SCOPES =
             Arrays.asList("https://www.googleapis.com/auth/youtube.force-ssl");
 
-    private static final String APPLICATION_NAME = "API code samples";
+    private static final String APPLICATION_NAME = "PlaylistTransfer";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
     public Transfer_Methods(){}
 
     /**
-     * Log into spotify.
-     */
-    public void get_Spotify_client() {
-    }
-
-    /**
      * Grab desired playlist to transfer.
      *
      * @param playlist_id - name of the playlist.
-     * @return String - Song names unparsed.
+     * @return ArrayList - List of song names.
      */
-    public String get_playlist(String playlist_id) throws IOException {
+    public ArrayList<String> get_playlist(String playlist_id) throws IOException {
         // System Property for user's Oauth token
         String Oauth_value = System.getProperty("Oauth_token");
         //System.out.println(playlist_id);
@@ -83,7 +82,19 @@ public class Transfer_Methods {
 
         // close the connection
         con.disconnect();
-        return content.toString();
+
+        // parse json
+        JSONObject response = new JSONObject(content.toString());
+        JSONArray trackItems = (JSONArray) response.get("items");
+
+        ArrayList<String> list = new ArrayList<String>();
+        for(int i = 0; i < trackItems.length(); i++){
+            list.add(trackItems.getJSONObject(i).getJSONObject("track").getString("name"));
+        }
+
+        System.out.println(list);
+        return list;
+
 
     }
 

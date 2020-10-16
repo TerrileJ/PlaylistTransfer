@@ -9,9 +9,9 @@ import java.security.GeneralSecurityException;
 public class Main {
     public static void main(String[] args) throws IOException, GeneralSecurityException {
         Transfer_Methods test = new Transfer_Methods();
-        //String trackNames = test.get_playlist(System.getProperty("playlist_id"));
+        test.get_playlist(System.getProperty("playlist_id"));
         // System.out.println(trackNames);
 
-        test.create_playlist();
+        //test.create_playlist();
     }
 }
