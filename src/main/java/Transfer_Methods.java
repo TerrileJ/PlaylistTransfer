@@ -12,7 +12,6 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.*;
 
-import java.lang.reflect.Array;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,9 +24,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONString;
+
 
 
 /**
@@ -92,7 +90,7 @@ public class Transfer_Methods {
             list.add(trackItems.getJSONObject(i).getJSONObject("track").getString("name"));
         }
 
-        System.out.println(list);
+        //System.out.println(list);
         return list;
 
 
@@ -170,16 +168,17 @@ public class Transfer_Methods {
      * Search Youtube for song from spotify playlist to get
      * video/resource ID.
      *
+     * @param songName - song to be searched for.
      * @return String - videoID for song on Youtube.
      */
-    public String search_song() throws GeneralSecurityException, IOException, GoogleJsonResponseException {
+    public String search_song(String songName) throws GeneralSecurityException, IOException, GoogleJsonResponseException {
         YouTube youtubeService = get_Youtube_client();
 
         // Define and execute the API request for each track
         YouTube.Search.List request = youtubeService.search()
                 .list("snippet");
         SearchListResponse response = request.setMaxResults(1L)
-                .setQ("Tap")
+                .setQ(songName)
                 .setType("video")
                 .execute();
 
