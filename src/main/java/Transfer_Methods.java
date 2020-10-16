@@ -43,6 +43,34 @@ public class Transfer_Methods {
     public Transfer_Methods(){}
 
     /**
+     * Transfers a spotify playlist into Youtube.
+     *
+     * @param SP_playlist_id - id of spotify playlist to take songs from
+     * @return void.
+     */
+    public void transfer_playlist(String SP_playlist_id) throws GeneralSecurityException, IOException {
+        // build youtube client
+        YouTube youtubeService = get_Youtube_client();
+
+        // create empty youtube playlist and get ID
+        String YT_playlist_id = create_playlist(youtubeService);
+
+        // get Spotify track names
+        ArrayList<String> tracks = get_playlist(SP_playlist_id);
+        System.out.println(tracks);
+
+
+        for(String track: tracks){
+            // searches for song and adds top result to playlist
+            String songID = search_song(youtubeService, track);
+            add_song(youtubeService, YT_playlist_id, songID);
+        }
+
+
+
+    }
+
+    /**
      * Grab desired playlist to transfer.
      *
      * @param playlist_id - name of the playlist.
@@ -58,6 +86,7 @@ public class Transfer_Methods {
         URL url = new URL("https://api.spotify.com/v1/playlists/" + playlist_id + "/tracks?fields=items(track(name))");
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
+        //System.out.println(url);
 
         // setting headers
         con.setRequestProperty("Accept", "application-json");
@@ -98,12 +127,11 @@ public class Transfer_Methods {
 
     /**
      * Log into Youtube and give permissions.
-     *
      * Derived from Youtube Java Quickstart Docs.
+     *
      * @return Youtube - Youtube user auth api client.
      */
     public YouTube get_Youtube_client() throws GeneralSecurityException, IOException {
-
         final NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
 
         // Load client secrets.
@@ -127,12 +155,11 @@ public class Transfer_Methods {
      * Create a youtube playlist.
      *
      * Taken from Youtube Data Api.
+     *
+     * @param youtubeService - Youtube client.
      * @return String - Youtube playlist id.
      */
-    public String create_playlist() throws GeneralSecurityException, IOException {
-        YouTube youtubeService = get_Youtube_client();
-
-
+    public String create_playlist(YouTube youtubeService) throws GeneralSecurityException, IOException {
         // Define the Playlist object, which will be uploaded as the request body.
         Playlist playlist = new Playlist();
 
@@ -168,12 +195,11 @@ public class Transfer_Methods {
      * Search Youtube for song from spotify playlist to get
      * video/resource ID.
      *
+     * @param youtubeService - Youtube client.
      * @param songName - song to be searched for.
      * @return String - videoID for song on Youtube.
      */
-    public String search_song(String songName) throws GeneralSecurityException, IOException, GoogleJsonResponseException {
-        YouTube youtubeService = get_Youtube_client();
-
+    public String search_song(YouTube youtubeService, String songName) throws GeneralSecurityException, IOException, GoogleJsonResponseException {
         // Define and execute the API request for each track
         YouTube.Search.List request = youtubeService.search()
                 .list("snippet");
@@ -196,14 +222,12 @@ public class Transfer_Methods {
     /**
      * Add song into youtube playlist.
      *
+     * @param youtubeService - Youtube client.
      * @param youtubePlayID - id of playlist to add song to.
      * @param videoID - id of video to be added.
      * @return void
      */
-    public void add_song(String youtubePlayID, String videoID) throws GeneralSecurityException, IOException, GoogleJsonResponseException {
-        YouTube youtubeService = get_Youtube_client();
-
-
+    public void add_song(YouTube youtubeService, String youtubePlayID, String videoID) throws GeneralSecurityException, IOException, GoogleJsonResponseException {
         // Define the PlaylistItem object, which will be uploaded as the request body.
         PlaylistItem playlistItem = new PlaylistItem();
 
@@ -223,8 +247,6 @@ public class Transfer_Methods {
         PlaylistItem response = request.execute();
 
     }
-
-
 
 
 }
