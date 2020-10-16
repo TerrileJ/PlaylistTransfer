@@ -2,7 +2,7 @@
 Takes a public Spotify playlist and transfers it over to Youtube. An alternative approach for those without spotify premium, allowing them to relisten to a few songs, pick and choose what to play, etc.
 
 # Install
-Install latest version of JSON at https://mvnrepository.com/artifact/org.json/json. Update version dependency in build.gradle if needed. 
+Install latest version of JSON at https://mvnrepository.com/artifact/org.json/json. Add to classpath and update version dependency in build.gradle file if needed. 
 
 # Setup 
 Spotify Oauth - Go to https://developer.spotify.com/console/get-playlist-tracks/?playlist_id=21THa8j9TaSGuXYNBU5tsC&user_id=spotify_espa%C3%B1a to get a spotify Oauth token with the default scopes. 
