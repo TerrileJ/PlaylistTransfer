@@ -4,6 +4,7 @@ import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -13,6 +14,7 @@ import com.google.api.services.youtube.model.Playlist;
 import com.google.api.services.youtube.model.PlaylistSnippet;
 import com.google.api.services.youtube.model.PlaylistStatus;
 
+import java.lang.reflect.Array;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,6 +26,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import com.google.api.services.youtube.model.SearchListResponse;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -164,9 +167,31 @@ public class Transfer_Methods {
     }
 
     /**
-     * Search Youtube for song from spotify playlist.
+     * Search Youtube for song from spotify playlist to get
+     * video/resource ID.
+     *
+     * @param playlist_id - name of the playlist.
+     * @return String - videoID for song on Youtube.
      */
-    public void search_song() {
+    public String search_song(String playlist_id) throws GeneralSecurityException, IOException, GoogleJsonResponseException {
+        YouTube youtubeService = get_Youtube_client();
+
+        // Define and execute the API request for each track
+        YouTube.Search.List request = youtubeService.search()
+                .list("snippet");
+        SearchListResponse response = request.setMaxResults(1L)
+                .setQ("Tap")
+                .setType("video")
+                .execute();
+
+        // parse json response
+        JSONObject YoutubeSearch = new JSONObject(response.toString());
+        JSONArray searchResults = (JSONArray) YoutubeSearch.get("items");
+
+        // video id for first song result
+        String videoID = searchResults.getJSONObject(0).getJSONObject("id").getString("videoId");
+
+        return videoID;
 
     }
 
