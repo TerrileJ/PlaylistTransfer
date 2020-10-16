@@ -10,9 +10,7 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 
 import com.google.api.services.youtube.YouTube;
-import com.google.api.services.youtube.model.Playlist;
-import com.google.api.services.youtube.model.PlaylistSnippet;
-import com.google.api.services.youtube.model.PlaylistStatus;
+import com.google.api.services.youtube.model.*;
 
 import java.lang.reflect.Array;
 import java.security.GeneralSecurityException;
@@ -26,7 +24,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import com.google.api.services.youtube.model.SearchListResponse;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -132,9 +129,9 @@ public class Transfer_Methods {
      * Create a youtube playlist.
      *
      * Taken from Youtube Data Api.
-     * @return void.
+     * @return String - Youtube playlist id.
      */
-    public void create_playlist() throws GeneralSecurityException, IOException {
+    public String create_playlist() throws GeneralSecurityException, IOException {
         YouTube youtubeService = get_Youtube_client();
 
 
@@ -164,16 +161,18 @@ public class Transfer_Methods {
         Playlist response = request.execute();
         System.out.println(response);
 
+        // parse JSON response for playlist id
+        JSONObject playlistResponse = new JSONObject(response.toString());
+        return playlistResponse.getString("id");
     }
 
     /**
      * Search Youtube for song from spotify playlist to get
      * video/resource ID.
      *
-     * @param playlist_id - name of the playlist.
      * @return String - videoID for song on Youtube.
      */
-    public String search_song(String playlist_id) throws GeneralSecurityException, IOException, GoogleJsonResponseException {
+    public String search_song() throws GeneralSecurityException, IOException, GoogleJsonResponseException {
         YouTube youtubeService = get_Youtube_client();
 
         // Define and execute the API request for each track
@@ -196,11 +195,37 @@ public class Transfer_Methods {
     }
 
     /**
-     * Add song into youtube playlist.git
+     * Add song into youtube playlist.
+     *
+     * @param youtubePlayID - id of playlist to add song to.
+     * @param videoID - id of video to be added.
+     * @return void
      */
-    public void add_song() {
+    public void add_song(String youtubePlayID, String videoID) throws GeneralSecurityException, IOException, GoogleJsonResponseException {
+        YouTube youtubeService = get_Youtube_client();
+
+
+        // Define the PlaylistItem object, which will be uploaded as the request body.
+        PlaylistItem playlistItem = new PlaylistItem();
+
+        // Add the snippet object property to the PlaylistItem object.
+        PlaylistItemSnippet snippet = new PlaylistItemSnippet();
+        snippet.setPlaylistId(youtubePlayID);
+        snippet.setPosition(0L);
+        ResourceId resourceId = new ResourceId();
+        resourceId.setKind("youtube#video");
+        resourceId.setVideoId(videoID);
+        snippet.setResourceId(resourceId);
+        playlistItem.setSnippet(snippet);
+
+        // Define and execute the API request
+        YouTube.PlaylistItems.Insert request = youtubeService.playlistItems()
+                .insert("snippet", playlistItem);
+        PlaylistItem response = request.execute();
 
     }
+
+
 
 
 }
